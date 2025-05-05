@@ -1,4 +1,4 @@
-name: Deploy to the AWS EC2 Instance
+name: Deploy the backend
 
 on:
   push:
