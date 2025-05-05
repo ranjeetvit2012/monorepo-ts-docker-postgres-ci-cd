@@ -1,5 +1,4 @@
 import db from "@repo/db/client";
-console.log("dd")
 
 Bun.serve({
     port: 8081,
