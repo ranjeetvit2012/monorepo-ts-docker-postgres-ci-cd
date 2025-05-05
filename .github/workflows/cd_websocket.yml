@@ -1,29 +1,43 @@
-name: Deploy the ws
+name: Deploy to the AWS EC2 Instance
+
 on:
   push:
     branches: [ main ]
-jobs: 
+
+jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
+      # Step 1: Checkout the code
       - name: Checkout the code
         uses: actions/checkout@v2
 
+      # Step 2: Docker login
       - name: Docker login
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      
-      - name: Build and push 
+
+      # Step 3: Build and push Docker image to Docker Hub
+      - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
           context: .
           file: ./docker/Dockerfile.ws
           push: true
           tags: ranjeetvit/todo-app-ws:${{ github.sha }}
-      - name: Deploy to the VM
+
+      # Step 4: Deploy to AWS EC2 Instance
+      - name: Deploy to AWS EC2 Instance
         run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" &> ~/ssh_key
-          chmod 700 /home/runner/ssh_key
-          ssh -o StrictHostKeyChecking=no -i ~/ssh_key root@64.227.169.180 -t "docker stop user_backend && docker run --name user_backend -d -p 8080:8080 100xdevs/todo-app-backend:${{ github.sha }}"
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/ssh_key
+          chmod 600 ~/ssh_key
+          ssh -o StrictHostKeyChecking=no -i ~/ssh_key ec2-user@${{ secrets.AWS_EC2_PUBLIC_IP }} -t "
+            docker stop user_backend || true && \
+            docker rm user_backend || true && \
+            docker system prune -af --volumes && \
+            docker run --name user_backend -d -p 8081:8081 \
+            -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
+            ranjeetvit/todo-app-backend:${{ github.sha }}"
