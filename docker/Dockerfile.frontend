@@ -14,15 +14,10 @@ COPY ./apps/web ./apps/web
 
 COPY . .
 
-ENV DATABASE_URL=$DATABASE_URL
-RUN echo "$DATABASE_URL"
-
-RUN apt-get update -y && apt-get install -y openssl
 
 RUN bun install
 RUN bun run db:generate
-
-RUN DATABASE_URL=${DATABASE_URL} bun run build
+RUN DB_URL=$DB_URL bunx turbo build --filter=web...
 
 EXPOSE 3000
 
