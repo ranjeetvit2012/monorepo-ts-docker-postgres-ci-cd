@@ -40,7 +40,7 @@ jobs:
             docker stop frontend_app || true && \
             docker rm frontend_app || true && \
             docker system prune -af --volumes && \
-            docker run --name frontend_app -d -p 8081:8081 \
+            docker run --name frontend_app -d -p 3000:3000 \
             -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
             ranjeetvit/todo-app-frontend:${{ github.sha }}"
 
