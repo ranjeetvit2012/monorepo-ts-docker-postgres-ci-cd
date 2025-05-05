@@ -30,7 +30,7 @@ jobs:
           tags: ranjeetvit/todo-app-backend:${{ github.sha }}
 
       # Step 4: Deploy to AWS EC2 Instance
-      - name: Deploy to AWS EC2 Instance
+      - name: Deploy to Backend AWS EC2 Instance
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/ssh_key
           chmod 600 ~/ssh_key
