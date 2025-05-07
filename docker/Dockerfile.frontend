@@ -7,8 +7,7 @@ RUN apt-get update && apt-get install -y openssl
 
 # Accept build-time DATABASE_URL arg
 ARG DATABASE_URL
-ENV DATABASE_URL=$DATABASE_URL
-RUN echo ${DATABASE_URL}
+
 
 # Copy necessary files
 COPY ./packages ./packages
@@ -19,10 +18,10 @@ COPY ./apps/web ./apps/web
 COPY . .
 
 RUN bun install
-
+ENV DATABASE_URL=$DATABASE_URL
 # Prisma needs DATABASE_URL available at generation time
 RUN bun run db:generate
-
+COPY . .
 # This will now have access to DATABASE_URL
 RUN bunx turbo build --filter=web...
 
