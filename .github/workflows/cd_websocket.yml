@@ -38,6 +38,6 @@ jobs:
             docker stop websocket || true && \
             docker rm websocket || true && \
             docker system prune -af --volumes && \
-            docker run --name websocket -d -p 8080:8080 \
+            docker run --name websocket -d -p 8081:8081 \
             -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
             ranjeetvit/todo-app-ws:${{ github.sha }}"
