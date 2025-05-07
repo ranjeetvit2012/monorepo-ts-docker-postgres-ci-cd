@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y openssl
 # Accept build-time DATABASE_URL arg
 ARG DATABASE_URL
 ENV DATABASE_URL=$DATABASE_URL
+RUN echo ${DATABASE_URL}
 
 # Copy necessary files
 COPY ./packages ./packages

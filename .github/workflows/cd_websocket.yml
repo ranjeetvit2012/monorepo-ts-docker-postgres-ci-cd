@@ -30,38 +30,14 @@ jobs:
           tags: ranjeetvit/todo-app-ws:${{ github.sha }}
 
       # Step 4: Deploy to AWS EC2 Instance
-      - name: Deploy websocket to AWS EC2 Instance
+      - name: Deploy to Backend AWS EC2 Instance
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/ssh_key
           chmod 600 ~/ssh_key
-          ssh -o StrictHostKeyChecking=no -i ~/ssh_key ec2-user@${{ secrets.AWS_EC2_PUBLIC_IP }} -tt "
-            set -e
-
-            CONTAINER_NAME=websocket_app
-
-            # Stop the container if running
-            if docker ps -q -f name=\$CONTAINER_NAME; then
-              echo 'Stopping container...'
-              docker stop \$CONTAINER_NAME || true
-            fi
-
-            # Wait for any in-progress container removal
-            echo 'Waiting for container removal to finish if already in progress...'
-            while docker ps -a | grep -q \$CONTAINER_NAME; do
-              sleep 2
-              docker rm \$CONTAINER_NAME || true
-            done
-
-            # Wait for ongoing prune to finish
-            echo 'Waiting for any running docker system prune to finish...'
-            while pgrep -f 'docker.*prune' > /dev/null; do
-              sleep 2
-            done
-
-            # Prune system
-            docker system prune -af --volumes
-
-            # Start new container
-            docker run --name \$CONTAINER_NAME -d -p 8081:8081 \
-              -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
-              ranjeetvit/todo-app-ws:${{ github.sha }}"
+          ssh -o StrictHostKeyChecking=no -i ~/ssh_key ec2-user@${{ secrets.AWS_EC2_PUBLIC_IP }} -t "
+            docker stop websocket || true && \
+            docker rm websocket || true && \
+            docker system prune -af --volumes && \
+            docker run --name websocket -d -p 8080:8080 \
+            -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
+            ranjeetvit/todo-app-ws:${{ github.sha }}"
